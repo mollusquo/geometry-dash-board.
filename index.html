@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Geometry Dash Board</title>
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+        }
+
+        .titre-zone {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 50px;
+            margin-top: 30px;
+        }
+
+        .titre-image {
+            width: 180px;
+            height: auto;
+            border-radius: 15px;
+        }
+
+        .pseudo-input {
+            font-size: 80px;
+            font-weight: bold;
+            text-align: center;
+            background: transparent;
+            color: white;
+            border: none;
+            width: 500px;
+            text-shadow: 4px 4px 10px black;
+        }
+
+        .box {
+            width: 80%;
+            margin: 30px auto;
+            background-color: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        h2, th {
+            color: #facc15;
+        }
+
+        input, button, select {
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            font-size: 16px;
+            margin: 5px;
+            text-align: center;
+        }
+
+        button {
+            background-color: #facc15;
+            font-weight: bold;
+            cursor: pointer;
+            min-width: 150px;
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 20px;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        td button {
+            display: block;
+            margin: auto;
+        }
+
+        .steam-button {
+            display: inline-block;
+            margin: 30px;
+            padding: 15px 30px;
+            background-color: #1b2838;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="titre-zone">
+        <img src="tidal wave.png" alt="Tidal Wave" class="titre-image">
+
+        <input
+            id="pseudo"
+            class="pseudo-input"
+            type="text"
+            maxlength="25"
+            value="MAXIME"
+            oninput="sauvegarderProfil()">
+
+        <img src="thinking space II.png" alt="Thinking Space II" class="titre-image">
+    </div>
+
+    <div class="box">
+        <h2>Mon profil Geometry Dash</h2>
+
+        <p>
+            Je suis :
+            <select id="genre" onchange="sauvegarderProfil()">
+                <option>Joueur</option>
+                <option>Joueuse</option>
+                <option>Autre</option>
+            </select>
+        </p>
+
+        <p>
+            Je joue sur :
+            <select id="support" onchange="sauvegarderProfil()">
+                <option>Mobile</option>
+                <option>PC</option>
+                <option>Autre</option>
+            </select>
+        </p>
+
+        <p>
+            FPS :
+            <input id="fps" type="text" maxlength="25" value="60 FPS" oninput="sauvegarderProfil()">
+        </p>
+
+        <p>
+            Hardest :
+            <input id="hardest" type="text" maxlength="25" value="Nine Circles" oninput="sauvegarderProfil()">
+        </p>
+
+        <p>
+            Objectif ultime :
+            <input id="objectif" type="text" maxlength="25" value="Cataclysm" oninput="sauvegarderProfil()">
+        </p>
+    </div>
+
+    <div class="box">
+        <h2>Ajouter un niveau</h2>
+
+        <select id="difficulte">
+            <option>Auto</option>
+            <option>Easy</option>
+            <option>Normal</option>
+            <option>Hard</option>
+            <option>Harder</option>
+            <option>Insane</option>
+            <option>Easy Demon</option>
+            <option>Medium Demon</option>
+            <option>Hard Demon</option>
+            <option>Insane Demon</option>
+            <option>Extreme Demon</option>
+        </select>
+
+        <input id="niveau" type="text" maxlength="25" placeholder="Nom du niveau">
+
+        <input id="pourcentage" type="text" maxlength="25" placeholder="Pourcentage"
+               oninput="this.value=this.value.replace(/[^0-9%]/g,'')">
+
+        <input id="run" type="text" maxlength="25" placeholder="Meilleure run"
+               oninput="this.value=this.value.replace(/[^0-9\-%]/g,'')">
+
+        <button onclick="ajouterNiveau()">Ajouter</button>
+    </div>
+
+    <div class="box">
+        <h2>Mes objectifs</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Difficulté</th>
+                    <th>Niveau</th>
+                    <th>Pourcentage</th>
+                    <th>Meilleure run</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody id="tableauNiveaux"></tbody>
+        </table>
+    </div>
+
+    <a class="steam-button" href="steam://run/322170">
+        🎮 Ouvrir Geometry Dash
+    </a>
+
+    <script>
+        let niveaux = JSON.parse(localStorage.getItem("niveauxGD")) || [
+            { difficulte: "Hard Demon", nom: "🎯 Futur Funk", pourcentage: "0%", run: "-" },
+            { difficulte: "Extreme Demon", nom: "🔥 Cataclysm", pourcentage: "13%", run: "0-13%" }
+        ];
+
+        function sauvegarderProfil() {
+            let profil = {
+                pseudo: document.getElementById("pseudo").value,
+                genre: document.getElementById("genre").value,
+                support: document.getElementById("support").value,
+                fps: document.getElementById("fps").value,
+                hardest: document.getElementById("hardest").value,
+                objectif: document.getElementById("objectif").value
+            };
+
+            localStorage.setItem("profilGD", JSON.stringify(profil));
+        }
+
+        function chargerProfil() {
+            let profil = JSON.parse(localStorage.getItem("profilGD"));
+
+            if (profil) {
+                document.getElementById("pseudo").value = profil.pseudo || "MAXIME";
+                document.getElementById("genre").value = profil.genre || "Joueur";
+                document.getElementById("support").value = profil.support || "Mobile";
+                document.getElementById("fps").value = profil.fps || "60 FPS";
+                document.getElementById("hardest").value = profil.hardest || "Nine Circles";
+                document.getElementById("objectif").value = profil.objectif || "Cataclysm";
+            }
+        }
+
+        function afficherNiveaux() {
+            let tableau = document.getElementById("tableauNiveaux");
+            tableau.innerHTML = "";
+
+            niveaux.forEach((niveau, index) => {
+                let ligne = document.createElement("tr");
+
+                ligne.innerHTML = `
+                    <td>
+                        <select onchange="modifierNiveau(${index}, 'difficulte', this.value)">
+                            <option ${niveau.difficulte === "Auto" ? "selected" : ""}>Auto</option>
+                            <option ${niveau.difficulte === "Easy" ? "selected" : ""}>Easy</option>
+                            <option ${niveau.difficulte === "Normal" ? "selected" : ""}>Normal</option>
+                            <option ${niveau.difficulte === "Hard" ? "selected" : ""}>Hard</option>
+                            <option ${niveau.difficulte === "Harder" ? "selected" : ""}>Harder</option>
+                            <option ${niveau.difficulte === "Insane" ? "selected" : ""}>Insane</option>
+                            <option ${niveau.difficulte === "Easy Demon" ? "selected" : ""}>Easy Demon</option>
+                            <option ${niveau.difficulte === "Medium Demon" ? "selected" : ""}>Medium Demon</option>
+                            <option ${niveau.difficulte === "Hard Demon" ? "selected" : ""}>Hard Demon</option>
+                            <option ${niveau.difficulte === "Insane Demon" ? "selected" : ""}>Insane Demon</option>
+                            <option ${niveau.difficulte === "Extreme Demon" ? "selected" : ""}>Extreme Demon</option>
+                        </select>
+                    </td>
+
+                    <td>
+                        <input maxlength="25" value="${niveau.nom}"
+                               onchange="modifierNiveau(${index}, 'nom', this.value)">
+                    </td>
+
+                    <td>
+                        <input maxlength="25" value="${niveau.pourcentage}"
+                               oninput="this.value=this.value.replace(/[^0-9%]/g,'')"
+                               onchange="modifierNiveau(${index}, 'pourcentage', this.value)">
+                    </td>
+
+                    <td>
+                        <input maxlength="25" value="${niveau.run}"
+                               oninput="this.value=this.value.replace(/[^0-9\\-%]/g,'')"
+                               onchange="modifierNiveau(${index}, 'run', this.value)">
+                    </td>
+
+                    <td>
+                        <button onclick="supprimerNiveau(${index})">Supprimer</button>
+                    </td>
+                `;
+
+                tableau.appendChild(ligne);
+            });
+        }
+
+        function sauvegarderNiveaux() {
+            localStorage.setItem("niveauxGD", JSON.stringify(niveaux));
+        }
+
+        function ajouterNiveau() {
+            let difficulte = document.getElementById("difficulte").value;
+            let nom = document.getElementById("niveau").value;
+            let pourcentage = document.getElementById("pourcentage").value;
+            let run = document.getElementById("run").value;
+
+            if (nom === "") {
+                alert("Écris au moins le nom du niveau.");
+                return;
+            }
+
+            niveaux.push({
+                difficulte: difficulte,
+                nom: nom,
+                pourcentage: pourcentage,
+                run: run
+            });
+
+            sauvegarderNiveaux();
+            afficherNiveaux();
+
+            document.getElementById("niveau").value = "";
+            document.getElementById("pourcentage").value = "";
+            document.getElementById("run").value = "";
+        }
+
+        function modifierNiveau(index, propriete, valeur) {
+            niveaux[index][propriete] = valeur;
+            sauvegarderNiveaux();
+        }
+
+        function supprimerNiveau(index) {
+            niveaux.splice(index, 1);
+            sauvegarderNiveaux();
+            afficherNiveaux();
+        }
+
+        chargerProfil();
+        afficherNiveaux();
+    </script>
+
+</body>
+</html>
