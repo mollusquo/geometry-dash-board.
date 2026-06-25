@@ -113,7 +113,7 @@
             class="pseudo-input"
             type="text"
             maxlength="25"
-            value="MAXIME"
+            value=""
             oninput="sauvegarderProfil()">
 
         <img src="thinking space II.png" alt="Thinking Space II" class="titre-image">
@@ -125,6 +125,7 @@
         <p>
             Je suis :
             <select id="genre" onchange="sauvegarderProfil()">
+                <option value="">Choisir</option>
                 <option>Joueur</option>
                 <option>Joueuse</option>
                 <option>Autre</option>
@@ -134,6 +135,7 @@
         <p>
             Je joue sur :
             <select id="support" onchange="sauvegarderProfil()">
+                <option value="">Choisir</option>
                 <option>Mobile</option>
                 <option>PC</option>
                 <option>Autre</option>
@@ -142,17 +144,22 @@
 
         <p>
             FPS :
-            <input id="fps" type="text" maxlength="25" value="60 FPS" oninput="sauvegarderProfil()">
+            <input id="fps" type="text" maxlength="8" value=""
+    oninput="
+        this.value=this.value.replace(/[^0-9]/g,'');
+        sauvegarderProfil();
+    ">
+    <span> FPS</span>
         </p>
 
         <p>
             Hardest :
-            <input id="hardest" type="text" maxlength="25" value="Nine Circles" oninput="sauvegarderProfil()">
+            <input id="hardest" type="text" maxlength="25" value="" oninput="sauvegarderProfil()">
         </p>
 
         <p>
             Objectif ultime :
-            <input id="objectif" type="text" maxlength="25" value="Cataclysm" oninput="sauvegarderProfil()">
+            <input id="objectif" type="text" maxlength="25" value="" oninput="sauvegarderProfil()">
         </p>
     </div>
 
@@ -178,8 +185,8 @@
         <input id="pourcentage" type="text" maxlength="25" placeholder="Pourcentage"
                oninput="this.value=this.value.replace(/[^0-9%]/g,'')">
 
-        <input id="run" type="text" maxlength="25" placeholder="Meilleure run"
-               oninput="this.value=this.value.replace(/[^0-9\-%]/g,'')">
+        <input id="Runs" type="text" maxlength="75" placeholder="Runs"
+       oninput="this.value=this.value.replace(/[^0-9\-%\/ ]/g,'')">
 
         <button onclick="ajouterNiveau()">Ajouter</button>
     </div>
@@ -193,7 +200,7 @@
                     <th>Difficulté</th>
                     <th>Niveau</th>
                     <th>Pourcentage</th>
-                    <th>Meilleure run</th>
+                    <th>Runs</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -207,10 +214,7 @@
     </a>
 
     <script>
-        let niveaux = JSON.parse(localStorage.getItem("niveauxGD")) || [
-            { difficulte: "Hard Demon", nom: "🎯 Futur Funk", pourcentage: "0%", run: "-" },
-            { difficulte: "Extreme Demon", nom: "🔥 Cataclysm", pourcentage: "13%", run: "0-13%" }
-        ];
+        let niveaux = JSON.parse(localStorage.getItem("niveauxGD")) || [];
 
         function sauvegarderProfil() {
             let profil = {
@@ -229,12 +233,12 @@
             let profil = JSON.parse(localStorage.getItem("profilGD"));
 
             if (profil) {
-                document.getElementById("pseudo").value = profil.pseudo || "MAXIME";
-                document.getElementById("genre").value = profil.genre || "Joueur";
-                document.getElementById("support").value = profil.support || "Mobile";
-                document.getElementById("fps").value = profil.fps || "60 FPS";
-                document.getElementById("hardest").value = profil.hardest || "Nine Circles";
-                document.getElementById("objectif").value = profil.objectif || "Cataclysm";
+                document.getElementById("pseudo").value = profil.pseudo || "";
+                document.getElementById("genre").value = profil.genre || "";
+                document.getElementById("support").value = profil.support || "";
+                document.getElementById("fps").value = profil.fps || "";
+                document.getElementById("hardest").value = profil.hardest || "";
+                document.getElementById("objectif").value = profil.objectif || "";
             }
         }
 
@@ -274,8 +278,8 @@
                     </td>
 
                     <td>
-                        <input maxlength="25" value="${niveau.run}"
-                               oninput="this.value=this.value.replace(/[^0-9\\-%]/g,'')"
+                        <input maxlength="75" value="${niveau.run || ''}"
+                               oninput="this.value=this.value.replace(/[^0-9\-%\/ ]/g,'')"
                                onchange="modifierNiveau(${index}, 'run', this.value)">
                     </td>
 
@@ -296,7 +300,7 @@
             let difficulte = document.getElementById("difficulte").value;
             let nom = document.getElementById("niveau").value;
             let pourcentage = document.getElementById("pourcentage").value;
-            let run = document.getElementById("run").value;
+            let run = document.getElementById("Runs").value;
 
             if (nom === "") {
                 alert("Écris au moins le nom du niveau.");
